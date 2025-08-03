@@ -1,13 +1,20 @@
 package com.doomhowl.commitchart;
 
-import java.time.LocalDate;
-import java.time.Month;
+import com.doomhowl.commitchart.domain.Repository;
+import com.doomhowl.commitchart.gfx.ChartImage;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class CommitChartServer {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Repository repo = new Repository("C:\\dev\\spacetyper");
         repo.open();
 
-        System.out.println("Repo has " + repo.getCommitCount(LocalDate.of(2025, Month.AUGUST, 1)) + " commits");
+        ChartImage chartImage = new ChartImage(600,300);
+        BufferedImage img = chartImage.draw(repo, 2025);
+        ImageIO.write(img, "png", new File("out.png"));
     }
 }

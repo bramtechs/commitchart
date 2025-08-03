@@ -1,4 +1,4 @@
-package com.doomhowl.commitchart;
+package com.doomhowl.commitchart.domain;
 
 import com.doomhowl.commitchart.utils.ShellProcess;
 
@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-public class Repository {
+public class Repository implements GitStats {
     private final File folder;
     private final List<Commit> commits;
 
@@ -29,13 +30,19 @@ public class Repository {
         importFromLogOutput(log);
     }
 
-    public long getCommitCount() {
-        return commits.size();
+    @Override
+    public Stream<Commit> getCommits() {
+        return commits.stream();
     }
 
-    public long getCommitCount(LocalDate date)
-    {
-        return commits.stream().filter(c -> c.date.equals(date)).count();
+    @Override
+    public Stream<Commit> getCommitsOfDate(LocalDate date) {
+        return commits.stream().filter(c -> c.date.equals(date));
+    }
+
+    @Override
+    public Stream<Commit> getCommitsBetween(LocalDate after, LocalDate before) {
+        return commits.stream().filter(c -> c.date.isAfter(after) && c.date.isBefore(before));
     }
 
     private void importFromLogOutput(String log) {
