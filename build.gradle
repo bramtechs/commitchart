@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.doomhowl.commitchart'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = "com.doomhowl.commitchart.CommitChartServer"
+}
+
+dependencies {
+}
