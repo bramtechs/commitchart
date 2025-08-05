@@ -13,7 +13,7 @@ public class CommitChartServer {
         Repository repo = new Repository("C:\\dev\\spacetyper");
         repo.open();
 
-        ChartImage chartImage = new ChartImage(600,300);
+        ChartImage chartImage = new ChartImage(1000,500);
         BufferedImage img = chartImage.draw(repo, 2025);
         ImageIO.write(img, "png", new File("out.png"));
     }
