@@ -4,44 +4,48 @@ import com.doomhowl.commitchart.domain.GitStats;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.time.LocalDate;
 
 public class ChartImage extends GfxUtils {
     private static final boolean DRAW_DEBUG = false;
 
-    private final BufferedImage img;
-    private final int width;
-    private final int height;
+    private final BufferedImage mImg;
+    private final int mWidth;
+    private final int mHeight;
 
-    private GitStats stats;
-    private int year;
-    private long topDailyCommits;
+    private GitStats mStats;
+    private int mYear;
+    private long mTopDailyCommits;
+    private PointBrush mBrush;
 
     public ChartImage(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        mWidth = width;
+        mHeight = height;
+        mImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        mBrush = new PointBrush(64, Color.YELLOW);
     }
 
     public BufferedImage draw(GitStats stats, int year) {
-        this.stats = stats;
-        this.year = year;
-        this.topDailyCommits = stats.countTopDailyCommitsOfYear(year);
+        mStats = stats;
+        mYear = year;
+        mTopDailyCommits = stats.countTopDailyCommitsOfYear(year);
 
-        createGraphics(this.img);
+        createGraphics(this.mImg);
         {
-            g.setColor(Color.DARK_GRAY);
-            g.fillRect(0, 0, width, height);
+            int e = 18;
+            g.setColor(new Color(e, e, e));
+            g.fillRect(0, 0, mWidth, mHeight);
 
-            Rectangle header = new Rectangle(0, 0, width, percMin(0.2f));
+            Rectangle header = new Rectangle(0, 0, mWidth, percMin(0.35f));
             drawHeader(header);
 
-            Rectangle content = new Rectangle(0, header.y + header.height, width, height - header.height);
-            content = columnRect(content, Math.min(width, height));
+            Rectangle content = new Rectangle(0, header.y + header.height, mWidth, mHeight - header.height);
+            content = columnRect(content, Math.min(mWidth, mHeight));
             drawContent(content);
         }
         disposeGraphics();
-        return img;
+        return mImg;
     }
 
     private void drawHeader(Rectangle region) {
@@ -57,11 +61,11 @@ public class ChartImage extends GfxUtils {
         int textSize = percMin(0.1f);
         Point textPos = rectCenter(region);
         textPos.translate(0, -textSize / 4);
-        drawCenteredText(Integer.toString(year), textPos, textSize);
+        drawCenteredText(Integer.toString(mYear), textPos, textSize);
 
         textPos = rectCenter(region);
         textPos.translate(0, textSize / 2);
-        drawCenteredText("Commits this year: " + stats.getCommitsOfYear(year).count(), textPos, textSize / 2);
+        drawCenteredText("Commits this year: " + mStats.getCommitsOfYear(mYear).count(), textPos, textSize / 2);
     }
 
     private void drawContent(Rectangle region) {
@@ -106,12 +110,12 @@ public class ChartImage extends GfxUtils {
         // header caption
         Rectangle caption = new Rectangle(region.x, region.y, region.width, region.height / 3);
         g.setColor(Color.white);
-        drawCenteredText(LocalDate.of(year, month, 1).getMonth().name(), rectCenter(caption), caption.height / 2);
+        drawCenteredText(LocalDate.of(mYear, month, 1).getMonth().name(), rectCenter(caption), caption.height / 2);
 
         region.translate(0, caption.height);
         region.height -= caption.height;
 
-        LocalDate firstDateOfMonth = LocalDate.of(year, month, 1);
+        LocalDate firstDateOfMonth = LocalDate.of(mYear, month, 1);
         int daysInMonth = firstDateOfMonth.lengthOfMonth();
         int startOffset = firstDateOfMonth.getDayOfWeek().getValue() - 1; // start offset
 
@@ -123,25 +127,35 @@ public class ChartImage extends GfxUtils {
             int x = (startOffset + day) % DAYS_PER_WEEK;
             int y = (startOffset + day) / DAYS_PER_WEEK;
 
-            Rectangle cell = new Rectangle((int) (region.x + x * cellSize), (int) (region.y + y * cellSize),
-                    (int) cellSize, (int) cellSize);
-            drawContentCell(cell, LocalDate.of(year, month, day));
+            Rectangle cell = new Rectangle((int) (region.x + x * cellSize), (int) (region.y + y * cellSize), (int) cellSize, (int) cellSize);
+            drawContentCell(cell, LocalDate.of(mYear, month, day));
         }
     }
 
+    // https://easings.net/#easeOutCubic
+    private static double easeOutCubic(double x) {
+        return 1 - Math.pow(1 - x, 3);
+    }
+
     private void drawContentCell(Rectangle region, LocalDate date) {
-        region = padRect(region, 0.1f);
-        long count = stats.getCommitsOfDate(date).count();
-        float perc = (float)count / (float) topDailyCommits;
+        region = padRect(region, -0.1f);
+        long count = mStats.getCommitsOfDate(date).count();
+        double perc = easeOutCubic(count / (double) mTopDailyCommits);
 
-        g.setColor(Color.WHITE);
-        g.clearRect(region.x, region.y, region.width, region.height);
+        BufferedImage brushImage = mBrush.getImage();
+        Composite comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) perc);
+        g.setComposite(comp);
 
-        g.setColor(Color.getHSBColor(48, perc * 100.f, 52));
-        g.fillRect(region.x, region.y, region.width, region.height);
+        g.drawImage(mBrush.getImage(),
+                region.x, region.y, region.x + region.width, region.y + region.height,
+                0, 0, brushImage.getWidth(), brushImage.getHeight(), null);
+        g.setComposite(AlphaComposite.Src);
+
+        //g.setColor(Color.getHSBColor(48, perc * 100.f, 52));
+        //g.fillRect(region.x, region.y, region.width, region.height);
     }
 
     private int percMin(float p) {
-        return (int) (Math.min(width, height) * p);
+        return (int) (Math.min(mWidth, mHeight) * p);
     }
 }
