@@ -8,7 +8,7 @@ public class GfxUtils {
     protected Graphics2D g;
 
     public static Rectangle padRect(Rectangle r, float p) {
-        int pad = (int)(Math.min(r.width, r.height) * p);
+        int pad = (int) (Math.min(r.width, r.height) * p);
         return new Rectangle(
                 (int) (r.x + pad * 0.5f),
                 (int) (r.y + pad * 0.5f),
@@ -39,11 +39,21 @@ public class GfxUtils {
     }
 
     public void drawCenteredText(String text, Point center, int size) {
-        drawCenteredText(text, center, size, "ComicMono.ttf");
+        switch (1)
+        {
+            case 0:
+                drawCenteredText(text, center, size, "ComicMono.ttf");
+                break;
+            case 1:
+                drawCenteredText(text, center, size, "Gothica-Book.ttf");
+                break;
+            case 3:
+                drawCenteredText(text, center, size, new Font("Cambria", Font.PLAIN, size));
+                break;
+        }
     }
 
-    public void drawCenteredText(String text, Point center, int size, String fontAssetName) {
-        Font font = FontLoader.loadFontFromJar(fontAssetName, size);
+    public void drawCenteredText(String text, Point center, int size, Font font) {
         FontLoader.configureGraphics(g);
         g.setFont(font);
 
@@ -51,5 +61,10 @@ public class GfxUtils {
         int x = center.x - metrics.stringWidth(text) / 2;
         int y = center.y - metrics.getHeight() / 2 + metrics.getAscent();
         g.drawString(text, x, y);
+    }
+
+    public void drawCenteredText(String text, Point center, int size, String fontAssetName) {
+        Font font = FontLoader.loadFontFromJar(fontAssetName, size);
+        drawCenteredText(text, center, size, font);
     }
 }

@@ -14,16 +14,42 @@ public class ChartImage extends GfxUtils {
     private final int mWidth;
     private final int mHeight;
 
+    private final String mCaption;
     private GitStats mStats;
     private int mYear;
     private long mTopDailyCommits;
     private PointBrush mBrush;
+    private Color mBgColor;
+    private Color mFgColor;
 
-    public ChartImage(int width, int height) {
+    public ChartImage(int width, int height, String caption) {
         mWidth = width;
         mHeight = height;
         mImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         mBrush = new PointBrush(64, Color.YELLOW);
+        mCaption = caption;
+
+        int e = 18;
+        mBgColor = new Color(e, e, e);
+        mFgColor = Color.white;
+    }
+
+    public ChartImage(int width, int height) {
+        this(width, height, "");
+    }
+
+    public ChartImage bgColor(Color color) {
+        mBgColor = color;
+        return this;
+    }
+
+    public ChartImage darkMode(boolean on) {
+        if (on) {
+            mFgColor = Color.white;
+        } else {
+            mFgColor = Color.black;
+        }
+        return this;
     }
 
     public BufferedImage draw(GitStats stats, int year) {
@@ -33,8 +59,7 @@ public class ChartImage extends GfxUtils {
 
         createGraphics(this.mImg);
         {
-            int e = 18;
-            g.setColor(new Color(e, e, e));
+            g.setColor(mBgColor);
             g.fillRect(0, 0, mWidth, mHeight);
 
             Rectangle header = new Rectangle(0, 0, mWidth, percMin(0.35f));
@@ -57,7 +82,7 @@ public class ChartImage extends GfxUtils {
             g.drawLine(region.x, region.y + region.height, region.x + region.width, region.y);
         }
 
-        g.setColor(Color.white);
+        g.setColor(mFgColor);
         int textSize = percMin(0.1f);
         Point textPos = rectCenter(region);
         textPos.translate(0, -textSize / 4);
@@ -65,7 +90,11 @@ public class ChartImage extends GfxUtils {
 
         textPos = rectCenter(region);
         textPos.translate(0, textSize / 2);
-        drawCenteredText("Commits this year: " + mStats.getCommitsOfYear(mYear).count(), textPos, textSize / 2);
+        drawCenteredText("Commits this year : " + mStats.getCommitsOfYear(mYear).count(), textPos, textSize / 2);
+
+        textPos = rectCenter(region);
+        textPos.translate(0, textSize);
+        drawCenteredText(mCaption, textPos, textSize / 3);
     }
 
     private void drawContent(Rectangle region) {
@@ -109,8 +138,10 @@ public class ChartImage extends GfxUtils {
 
         // header caption
         Rectangle caption = new Rectangle(region.x, region.y, region.width, region.height / 3);
-        g.setColor(Color.white);
-        drawCenteredText(LocalDate.of(mYear, month, 1).getMonth().name(), rectCenter(caption), caption.height / 2);
+        g.setColor(mFgColor);
+        String monthName = LocalDate.of(mYear, month, 1).getMonth().name();
+        monthName = monthName.charAt(0) + monthName.substring(1).toLowerCase();
+        drawCenteredText(monthName, rectCenter(caption), caption.height / 2);
 
         region.translate(0, caption.height);
         region.height -= caption.height;
@@ -150,9 +181,6 @@ public class ChartImage extends GfxUtils {
                 region.x, region.y, region.x + region.width, region.y + region.height,
                 0, 0, brushImage.getWidth(), brushImage.getHeight(), null);
         g.setComposite(AlphaComposite.Src);
-
-        //g.setColor(Color.getHSBColor(48, perc * 100.f, 52));
-        //g.fillRect(region.x, region.y, region.width, region.height);
     }
 
     private int percMin(float p) {
