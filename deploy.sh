@@ -3,6 +3,8 @@ set -xe
 
 pushd "$(dirname "$0")"
 
+scp index.html bram@git.doomhowl-interactive.com:/var/www/html/index.html
+
 ./gradlew jar
 scp build/libs/commitchart-1.0-SNAPSHOT.jar git@git.doomhowl-interactive.com:/home/git/commitchart.jar
 

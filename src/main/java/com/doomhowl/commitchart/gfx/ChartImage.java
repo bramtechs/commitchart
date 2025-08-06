@@ -34,12 +34,8 @@ public class ChartImage extends GfxUtils {
         mImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         mBrush = new PointBrush(64);
         mCaption = caption;
-        mPalette = Palette.createDefault();
         mColors = new HashMap<>();
-
-        int e = 18;
-        mBgColor = new Color(e, e, e);
-        mFgColor = Color.white;
+        darkMode(true);
     }
 
     public ChartImage(int width, int height) {
@@ -54,8 +50,10 @@ public class ChartImage extends GfxUtils {
     public ChartImage darkMode(boolean on) {
         if (on) {
             mFgColor = Color.white;
+            mPalette = Palette.createDefault(true);
         } else {
             mFgColor = Color.black;
+            mPalette = Palette.createDefault(false);
         }
         return this;
     }
