@@ -161,8 +161,8 @@ public class ChartImage extends GfxUtils {
 
         for (int day = 1; day <= daysInMonth; day++) {
 
-            int x = (startOffset + day) % DAYS_PER_WEEK;
-            int y = (startOffset + day) / DAYS_PER_WEEK;
+            int x = (startOffset + day - 1) % DAYS_PER_WEEK;
+            int y = (startOffset + day - 1) / DAYS_PER_WEEK;
 
             Rectangle cell = new Rectangle((int) (region.x + x * cellSize), (int) (region.y + y * cellSize), (int) cellSize, (int) cellSize);
             drawContentCell(cell, LocalDate.of(mYear, month, day));
