@@ -9,6 +9,8 @@ public record ChartImageSettings(
         String repoDir,
         Color bgColor,
         boolean darkMode,
-        int year
+        int year,
+        int generatedOnMonth,
+        int generatedOnDay
 ) {
 }

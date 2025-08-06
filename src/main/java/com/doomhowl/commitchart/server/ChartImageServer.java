@@ -89,7 +89,9 @@ public class ChartImageServer {
                     finalRepoDir,
                     new Color(0, 0, 0, 0),
                     darkMode,
-                    year
+                    year,
+                    LocalDate.now().getMonthValue(),
+                    LocalDate.now().getDayOfMonth()
             );
 
             System.out.println("Asking for image with settings: " + settings);
