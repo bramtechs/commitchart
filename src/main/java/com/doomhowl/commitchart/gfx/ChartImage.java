@@ -1,11 +1,15 @@
 package com.doomhowl.commitchart.gfx;
 
 import com.doomhowl.commitchart.domain.GitStats;
+import com.doomhowl.commitchart.domain.GitStatsGroup;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class ChartImage extends GfxUtils {
     private static final boolean DRAW_DEBUG = false;
@@ -21,13 +25,17 @@ public class ChartImage extends GfxUtils {
     private PointBrush mBrush;
     private Color mBgColor;
     private Color mFgColor;
+    private Palette mPalette;
+    private Map<GitStats, Color> mColors;
 
     public ChartImage(int width, int height, String caption) {
         mWidth = width;
         mHeight = height;
         mImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        mBrush = new PointBrush(64, Color.YELLOW);
+        mBrush = new PointBrush(64);
         mCaption = caption;
+        mPalette = Palette.createDefault();
+        mColors = new HashMap<>();
 
         int e = 18;
         mBgColor = new Color(e, e, e);
@@ -171,13 +179,26 @@ public class ChartImage extends GfxUtils {
     private void drawContentCell(Rectangle region, LocalDate date) {
         region = padRect(region, -0.1f);
         long count = mStats.getCommitsOfDate(date).count();
-        double perc = easeOutCubic(count / (double) mTopDailyCommits);
+        double perc = 0;
+        if (mTopDailyCommits > 0) {
+            perc = easeOutCubic(count / (double) mTopDailyCommits);
+        }
 
-        BufferedImage brushImage = mBrush.getImage();
-        Composite comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) perc);
+        Color color = Color.YELLOW;
+        if (mStats instanceof GitStatsGroup group) {
+            Optional<GitStats> stats = group.getTopGitStatsOfDay(date);
+            if (stats.isPresent()) {
+                mColors.putIfAbsent(stats.get(), mPalette.nextColor());
+                color = mColors.get(stats.get());
+            }
+        }
+
+        BufferedImage brushImage = mBrush.getImage(color);
+        float alpha = (float) Math.min(1.f, Math.max(0.f, perc));
+        Composite comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
         g.setComposite(comp);
 
-        g.drawImage(mBrush.getImage(),
+        g.drawImage(mBrush.getImage(color),
                 region.x, region.y, region.x + region.width, region.y + region.height,
                 0, 0, brushImage.getWidth(), brushImage.getHeight(), null);
         g.setComposite(AlphaComposite.Src);

@@ -1,6 +1,8 @@
 package com.doomhowl.commitchart;
 
+import com.doomhowl.commitchart.domain.GitStats;
 import com.doomhowl.commitchart.domain.Repository;
+import com.doomhowl.commitchart.domain.RepositoryGroup;
 import com.doomhowl.commitchart.gfx.ChartImage;
 
 import javax.imageio.ImageIO;
@@ -11,17 +13,17 @@ import java.io.IOException;
 
 public class CommitChartServer {
     public static void main(String[] args) throws IOException {
-        Repository repo = new Repository("C:\\dev\\spacetyper");
-        repo.open();
+        RepositoryGroup group = new RepositoryGroup("C:\\dev\\_dump");
+        group.open();
 
-        ChartImage lightChartImage = new ChartImage(800, 600, "git.doomhowl-interactive.com") //
+        ChartImage lightChartImage = new ChartImage(1280, 720, "git.doomhowl-interactive.com") //
                 .bgColor(new Color(0, 0, 0, 0)) //
                 .darkMode(false);
-        ImageIO.write(lightChartImage.draw(repo, 2025), "png", new File("light.png"));
+        ImageIO.write(lightChartImage.draw(group, 2025), "png", new File("light.png"));
 
         ChartImage darkChartImage = new ChartImage(800, 600, "git.doomhowl-interactive.com") //
                 .bgColor(new Color(0, 0, 0, 0)) //
                 .darkMode(true);
-        ImageIO.write(darkChartImage.draw(repo, 2025), "png", new File("dark.png"));
+        ImageIO.write(darkChartImage.draw(group, 2025), "png", new File("dark.png"));
     }
 }
