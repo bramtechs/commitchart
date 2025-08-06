@@ -11,7 +11,15 @@ repositories {
 }
 
 application {
-    mainClass = "com.doomhowl.commitchart.CommitChartServer"
+    mainClass = "com.doomhowl.commitchart.server.ChartImageServer"
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': application.mainClass
+        )
+    }
 }
 
 dependencies {

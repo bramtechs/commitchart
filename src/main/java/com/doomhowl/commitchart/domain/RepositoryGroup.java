@@ -20,15 +20,14 @@ public class RepositoryGroup extends GitStatsGroup {
         File[] children = mFolder.listFiles(File::isDirectory);
         if (children != null) {
             for (File child : children) {
-                // TODO: thread
-                Repository repo = new Repository(child);
                 try {
+                    Repository repo = new Repository(child);
                     repo.open();
+                    add(repo);
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    System.err.println("Error occurred while reading repo " + repo.getFolder() + ". It will not be used.");
+                    System.err.println("Error occurred while reading repo " + child.getAbsolutePath() + ". It will not be used.");
                 }
-                add(repo);
             }
         }
     }

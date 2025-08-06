@@ -1,17 +1,15 @@
 package com.doomhowl.commitchart;
 
-import com.doomhowl.commitchart.domain.GitStats;
-import com.doomhowl.commitchart.domain.Repository;
 import com.doomhowl.commitchart.domain.RepositoryGroup;
 import com.doomhowl.commitchart.gfx.ChartImage;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class CommitChartServer {
+public class CommitChartCli {
+    // TODO: not implemented yet
     public static void main(String[] args) throws IOException {
         RepositoryGroup group = new RepositoryGroup("C:\\dev\\_dump");
         group.open();
